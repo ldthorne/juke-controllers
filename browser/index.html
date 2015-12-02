@@ -10,53 +10,60 @@
     <link href="/style.css" rel="stylesheet" />
 </head>
 
-<body ng-app="juke">
-    <div id="main" class="container-fluid">
-        <div class="col-xs-2">
-            <sidebar>
-                <img src="juke.svg" class="logo">
-                <section>
-                    <h4 class="playlist-item active">
-					<a href="#">ALBUMS</a>
-				</h4>
-                </section>
-            </sidebar>
-        </div>
-        <div class="col-xs-10">
-            <div class="album" ng-controller="AlbumUrl">
-                <p>
-                    <h3>{{albumInfo.name}}</h3>
-                    <img src={ {imageUrl}} class="img-thumbnail">
-                </p>
-                <table class='table'>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Name</th>
-                            <th>Artists</th>
-                            <th>Genres</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="song in songs" ng-class='{active: currentSong._id === song._id}'>
-                            <td>
-                                <button ng-click='playSong(song)' class="btn btn-default btn-xs" ng-hide="currentSong._id === song._id">
-                                    <span class="glyphicon glyphicon-play"></span>
-                                </button>
-                            </td>
-                            <td>{{ song.name }}</td>
-                            <td>
-                                <span ng-repeat="artist in song.artists"> {{ artist.name }} </span>
-                            </td>
-                            <td>
-                                <span> {{ song.genres.join(", ") }} </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <body ng-app="juke">
+        <div id="main" class="container-fluid" >
+            <div class="col-xs-2">
+                <sidebar>
+                    <img src="juke.svg" class="logo">
+                    <section>
+                        <h4 class="playlist-item active">
+                        <a href="#">ALBUMS</a>
+                    </h4>
+                    </section>
+                </sidebar>
+            </div>
+            <div class="col-xs-10" ng-controller="AlbumUrl">
+                <div class="album">
+                    <p>
+                        <h3>{{albumInfo.name}}</h3>
+                        <img src= {{imageUrl}} class="img-thumbnail">
+                    </p>
+                    <table class='table'>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Artists</th>
+                                <th>Genres</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="song in songs" ng-class='{active: currentSong._id === song._id}'>
+                                <td>
+                                    <button ng-click='playSong(song)' class="glyphicon btn btn-default btn-xs" ng-class="currentSong._id === song._id ? 'glyphicon-pause' : 'glyphicon-play'">
+                                    <!-- ng-class="currentSong._id === song._id ? : paused , play"> -->
+                                        <span></span>
+                                    </button>
+                                    <!-- <button ng-click='pauseSong(song)' class="btn btn-default btn-xs" ng-show="song.playing">
+                                        <span  class="glyphicon glyphicon-pause"></span>
+                                    </button> -->
+                                </td>
+                                <td>{{ song.name }}</td>
+                                <td>
+                                    <span ng-repeat="artist in song.artists"> {{ artist.name }} </span>
+                                </td>
+                                <td>
+                                    <span> {{ song.genres.join(", ") }} </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <footer>
+    </body>
+    <footer ng-controller="FooterController">
+        <div ng-hide="activeClass === false">
             <div>
                 <div class="pull-left">
                     <button class="btn btn-default">
@@ -75,8 +82,7 @@
                     </div>
                 </div>
             </div>
-        </footer>
-    </div>
-</body>
+        </div>
+    </footer>
 
 </html>

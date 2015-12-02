@@ -37,37 +37,45 @@ app.controller("MainController", function($scope) {
 
 });
 
-app.controller('AlbumUrl', function($http, $scope) {
-	$scope.activeClass = false;
+app.controller('AlbumUrl', function($http, $scope, $rootScope) {
+    // $scope.activeClass = false;
     $scope.currentSong;
 
-	$scope.toggle = function () {
-		$scope.activeClass = !$scope.activeClass;
-		console.log('got called');
-	}
 
-    $scope.playSong = function(song) {
-        $scope.currentSong = song;
-        var audio = document.createElement('audio');
-        audio.src = '/api/songs/' + song._id + '.audio';
-        audio.load();
-        audio.play();
-        // for now, reload the page if you want to stop the music
-        $scope.toggle();
+    $scope.toggle = function() {
+        $scope.activeClass = !$scope.activeClass;
     }
 
-    $http.get('/api/albums/565f2c87bc281ce022218e1d')
+    var audio = document.createElement('audio');
+    $scope.playSong = function(song) {
+        if(song == $scope.currentSong){
+            $scope.currentSong = null;
+            audio.pause();
+        }else{
+            console.log("else")
+            audio.src = '/api/songs/' + song._id + '.audio';
+            audio.load();
+            audio.play();
+            $scope.currentSong = song;
+        }
+        $scope.toggle();
+        $rootScope.$broadcast('started_playing',{});
+    }
+
+
+    $http.get('/api/albums/565f7818ece67f361474e7de')
         .then(function(response) {
 
             $scope.songs = response.data.songs;
             $scope.albumInfo = response.data;
-            $scope.imageUrl = response.config.url + ".image";
-
-            // console.log($scope.imageUrl);
-            console.log('the server responded with ', response);
+            $scope.imageUrl = "/api/albums/" + response.data._id + ".image";
 
         }).catch(console.error.bind(console));
-
-
-
 });
+
+app.controller("FooterController", function($scope, $rootScope){
+    $scope.activeClass = false;
+    $rootScope.$on("started_playing", function(){
+        $scope.activeClass = true;
+    });
+})
