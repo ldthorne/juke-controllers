@@ -36,46 +36,78 @@ app.controller("MainController", function($scope) {
     $scope.songs = fakeAlbum.songs;
 
 });
-
+var songs;
+var audio = document.createElement('audio');
 app.controller('AlbumUrl', function($http, $scope, $rootScope) {
     // $scope.activeClass = false;
-    $scope.currentSong;
+    $rootScope.currentSong;
 
 
     $scope.toggle = function() {
         $scope.activeClass = !$scope.activeClass;
     }
 
-    var audio = document.createElement('audio');
-    $scope.playSong = function(song) {
-        if(song == $scope.currentSong){
-            $scope.currentSong = null;
+    $rootScope.playSong = function(song) {
+
+        console.log("song: ",song,"currentSong: ", $rootScope.currentSong, "paused: ", audio.paused)
+        if (song == $rootScope.currentSong && !audio.paused) {
+            console.log("if",audio.paused)
+            $rootScope.currentSong = null;
             audio.pause();
-        }else{
+        } else {
             console.log("else")
             audio.src = '/api/songs/' + song._id + '.audio';
             audio.load();
             audio.play();
-            $scope.currentSong = song;
+            $rootScope.currentSong = song;
         }
         $scope.toggle();
-        $rootScope.$broadcast('started_playing',{});
+        $rootScope.$broadcast('started_playing', {});
     }
+
+
 
 
     $http.get('/api/albums/565f7818ece67f361474e7de')
         .then(function(response) {
 
-            $scope.songs = response.data.songs;
+            $rootScope.songs = response.data.songs;
             $scope.albumInfo = response.data;
             $scope.imageUrl = "/api/albums/" + response.data._id + ".image";
-
+            for (var i = 0; i < $scope.songs.length; i++) {
+                $scope.songs[i].trackNum = i;
+            }
         }).catch(console.error.bind(console));
 });
 
-app.controller("FooterController", function($scope, $rootScope){
+app.controller("FooterController", function($scope, $rootScope) {
+    audio.addEventListener('timeupdate', function () {
+        $rootScope.progress = 100 * audio.currentTime / audio.duration;
+        $rootScope.$digest();
+    });
+
     $scope.activeClass = false;
-    $rootScope.$on("started_playing", function(){
+    $rootScope.$on("started_playing", function() {
         $scope.activeClass = true;
     });
+
+    // var currentTrack=$scope.c
+    $scope.previousTrack = function() {
+        if($rootScope.currentSong.trackNum===0){
+        }else{
+            $rootScope.currentSong = $rootScope.songs[$rootScope.currentSong.trackNum - 1];
+        }
+        audio.src = '/api/songs/' + $rootScope.currentSong._id + '.audio';
+        $rootScope.playSong($rootScope.currentSong);
+    }
+
+    $scope.nextTrack = function() {
+        if($rootScope.currentSong.trackNum===$rootScope.songs.length-1){
+        }else{
+            $rootScope.currentSong = $rootScope.songs[$rootScope.currentSong.trackNum + 1];
+        }        
+        audio.src = '/api/songs/' + $rootScope.currentSong._id + '.audio';
+
+        $rootScope.playSong($rootScope.currentSong);
+    }
 })

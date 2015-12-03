@@ -66,19 +66,19 @@
         <div ng-hide="activeClass === false">
             <div>
                 <div class="pull-left">
-                    <button class="btn btn-default">
+                    <button class="btn btn-default" ng-click="previousTrack()">
                         <span class="glyphicon glyphicon-step-backward"></span>
                     </button>
                     <button class="btn btn-default">
                         <span class="glyphicon glyphicon-pause"></span>
                     </button>
-                    <button class="btn btn-default">
+                    <button class="btn btn-default" ng-click="nextTrack()">
                         <span class="glyphicon glyphicon-step-forward"></span>
                     </button>
                 </div>
                 <div class="bar">
                     <div class="progress">
-                        <div class="progress-bar"></div>
+                        <div class="progress-bar" ng-style="{width: progress + '%'}"></div>
                     </div>
                 </div>
             </div>
