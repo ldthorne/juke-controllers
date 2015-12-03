@@ -37,6 +37,7 @@ app.controller("MainController", function($scope) {
 
 });
 var songs;
+var songsPlayed = [];
 var audio = document.createElement('audio');
 app.controller('AlbumUrl', function($http, $scope, $rootScope) {
     // $scope.activeClass = false;
@@ -49,13 +50,10 @@ app.controller('AlbumUrl', function($http, $scope, $rootScope) {
 
     $rootScope.playSong = function(song) {
 
-        console.log("song: ",song,"currentSong: ", $rootScope.currentSong, "paused: ", audio.paused)
         if (song == $rootScope.currentSong && !audio.paused) {
-            console.log("if",audio.paused)
             $rootScope.currentSong = null;
             audio.pause();
         } else {
-            console.log("else")
             audio.src = '/api/songs/' + song._id + '.audio';
             audio.load();
             audio.play();
@@ -75,7 +73,7 @@ app.controller('AlbumUrl', function($http, $scope, $rootScope) {
             $scope.albumInfo = response.data;
             $scope.imageUrl = "/api/albums/" + response.data._id + ".image";
             for (var i = 0; i < $scope.songs.length; i++) {
-                $scope.songs[i].trackNum = i;
+                $rootScope.songs[i].trackNum = i;
             }
         }).catch(console.error.bind(console));
 });
@@ -87,6 +85,7 @@ app.controller("FooterController", function($scope, $rootScope) {
     });
 
     $scope.activeClass = false;
+
     $rootScope.$on("started_playing", function() {
         $scope.activeClass = true;
     });
@@ -99,7 +98,7 @@ app.controller("FooterController", function($scope, $rootScope) {
         }
         audio.src = '/api/songs/' + $rootScope.currentSong._id + '.audio';
         $rootScope.playSong($rootScope.currentSong);
-    }
+    };
 
     $scope.nextTrack = function() {
         if($rootScope.currentSong.trackNum===$rootScope.songs.length-1){
@@ -109,5 +108,23 @@ app.controller("FooterController", function($scope, $rootScope) {
         audio.src = '/api/songs/' + $rootScope.currentSong._id + '.audio';
 
         $rootScope.playSong($rootScope.currentSong);
-    }
+    };
+
+    $scope.shuffle = function() {
+        var currentTrackNum = $rootScope.currentSong.trackNum;
+        var shuffledNum = Math.floor((Math.random()*$rootScope.songs.length));
+        console.log(shuffledNum)
+        if(songsPlayed.length === $rootScope.songs.length){
+            songsPlayed = [];
+            return $scope.shuffle();
+        }
+        if(songsPlayed.indexOf(shuffledNum) >= 0 || shuffledNum === currentTrackNum){
+            return $scope.shuffle();
+        }
+        $rootScope.currentSong = $rootScope.songs[shuffledNum]
+        audio.src = '/api/songs/' + $rootScope.currentSong._id + '.audio';
+        $rootScope.playSong($rootScope.currentSong);
+        songsPlayed.push(shuffledNum)
+        console.log(songsPlayed)
+    };
 })
